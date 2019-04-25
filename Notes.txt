@@ -1,0 +1,7 @@
+- Need GUIZero installed in order for GUI to work!
+- GUIZero requires tkinter to be installed (usually is by default).
+
+# GUIZero Text Widget
+- Can specify any font computer has installed.
+- Colors can be specified by their names and/or HEX codes.
+- Some arguments include 'size', 'font', 'color', etc.
