@@ -60,6 +60,26 @@ class Motor:
         GPIO.output(24, False)
         time.sleep(duration)
         GPIO.cleanup()
+        
+class Servo:
+    #STILL NEED TO FIGURE OUT DUTY CYCLE FOR SERVO AND STUFF
+    def init():
+        GPIO.setmode(GPIO.BOARD)
+        GPIO.setup(12, GPIO.OUT)
+        p = GPIO.PWM(12, 50)
+        p.start(7.5) #7.5 = 90 degrees)
+    
+    def open_feed():
+        init()
+        p.ChangeDutyCycle(12.5) #turn towards 180 degrees
+        p.stop()
+        GPIO.cleanup()
+    
+    def close_feed():
+        init()
+        p.ChangeDutyCycle(2.5) #turn towards 0 degrees
+        p.stop()
+        GPIO.cleanup()
 
 app = App(title="Dog Feeder", width="800", height="480", bg="white")
 app.set_full_screen() # WILL USE THIS WHEN I HAVE SCREEN
