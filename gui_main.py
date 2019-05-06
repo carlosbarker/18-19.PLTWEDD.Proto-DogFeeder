@@ -1,7 +1,7 @@
 from guizero import App, PushButton, Box, Text, Window, TextBox, Combo
 import sys, os
 import RPi.GPIO as GPIO
-import time
+import time, schedule
 
 class GlobalVariables:
     dog_name = " "
@@ -25,22 +25,22 @@ class Motor:
         GPIO.setup(23, GPIO.OUT)
         GPIO.setup(24, GPIO.OUT)
     
-    def food_plate_out(duration):
+    def food_plate_out():
         Motor.init()
         GPIO.output(17, False)
         GPIO.output(22, True)
         GPIO.output(23, False)
         GPIO.output(24, False)
-        time.sleep(duration)
+        time.sleep(10) #integer argument is in SECONDS. Amount of time motor runs to slide out food plate.
         GPIO.cleanup()
         
-    def food_plate_in(duration):
+    def food_plate_in():
         Motor.init()
         GPIO.output(17, True)
         GPIO.output(22, False)
         GPIO.output(23, False)
         GPIO.output(24, False)
-        time.sleep(duration)
+        time.sleep(10) #integer argument is in SECONDS. Amount of time motor runs to slide out food plate.
         GPIO.cleanup()
     
     def water_pump_forward(duration):
@@ -84,7 +84,7 @@ class Servo:
 app = App(title="Dog Feeder", width="800", height="480", bg="white")
 app.set_full_screen() # WILL USE THIS WHEN I HAVE SCREEN
 
-def show_keyboard():
+def show_keyboard(): #NEEDS TO BE FIXED ASAP
     app.exit_full_screen()
     os.system("florence")
     app.set_full_screen()
@@ -261,8 +261,21 @@ def update_home(): #SECTION IS ALSO RESPONSIBLE FOR EVENT TRIGGERS LIKE A FEEDIN
     waterres_level.value = "Water Reservoir Level: " + str(GlobalVariables.waterres_level) + "%"
     waterplt_level.value = "Water Plate Level: " + str(GlobalVariables.waterplt_level) + "%"
     
+    schedule.run_pending()
     home_dog_size.after(250, update_home) #ULTIMATE RECURSIVE CALL TO UPDATE EVERYTHING. BASED ON DOG SIZE TEXT.
     
+def feed():
+    Servo.open_feed()
+    time.sleep(10) #integer argument is time in SECONDS. Amount of time food reservoir is dumping food onto plate. VARIES PER DOG SIZE.
+    Servo.close_feed()
+    Motor.food_plate_out()
+    time.sleep(300) #integer argument is time in SECONDS. Amount of time food plate is out.
+    Motor.food_plate_in()
+
+#Scheduler
+schedule.every().day.at(GlobalVariables.first_meal_time).do(feed)
+schedule.every().day.at(GlobalVariables.second_meal_time).do(feed)
+
 title_box = Box(app, align="top", width="fill", border=False)
 title = Text(title_box, text="Home", size=24, font="Arial")
 
