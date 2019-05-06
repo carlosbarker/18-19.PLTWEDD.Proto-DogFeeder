@@ -1,4 +1,4 @@
-import RPi.GPIO as GPIO
+
 
 class Motor:
     GPIO.setmode(GPIO.BOARD)
