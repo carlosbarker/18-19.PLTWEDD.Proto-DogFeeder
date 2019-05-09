@@ -1,7 +1,7 @@
 from guizero import App, PushButton, Box, Text, Window, TextBox, Combo
 import sys, os
 import RPi.GPIO as GPIO
-import time, schedule
+import time #schedule
 
 class GlobalVariables:
     dog_name = " "
@@ -15,51 +15,82 @@ class GlobalVariables:
     autorefill_percent = 50 #25 or 50% level at which water plate is refilled back to 100%
     
 class Motor:
-    #PIN 17 AND 22 IS LEFT 2 PINS ON L293N
-    #PIN 23 AND 24 IS RIGHT 2 PINS ON L293N
+    ena = 12
+    in1 = 6
+    in2 = 13
+
+    enb = 21
+    in3 = 19
+    in4 = 26
+    
+    GPIO.setmode(GPIO.BCM)
+    
+    GPIO.setup(ena, GPIO.OUT)
+    GPIO.setup(enb, GPIO.OUT)
+    GPIO.setup(in1, GPIO.OUT)
+    GPIO.setup(in2, GPIO.OUT)
+    GPIO.setup(in3, GPIO.OUT)
+    GPIO.setup(in4, GPIO.OUT)
+    
+    pwm_a = GPIO.PWM(ena, 500)
+    pwm_b = GPIO.PWM(enb, 500)
+    
+    pwm_a.start(0)
+    pwm_b.start(0)
     
     def init():
         GPIO.setmode(GPIO.BCM)
-        GPIO.setup(17, GPIO.OUT)
-        GPIO.setup(22, GPIO.OUT)
-        GPIO.setup(23, GPIO.OUT)
-        GPIO.setup(24, GPIO.OUT)
+        GPIO.setup(Motor.ena, GPIO.OUT)
+        GPIO.setup(Motor.enb, GPIO.OUT)
+        GPIO.setup(Motor.in1, GPIO.OUT)
+        GPIO.setup(Motor.in2, GPIO.OUT)
+        GPIO.setup(Motor.in3, GPIO.OUT)
+        GPIO.setup(Motor.in4, GPIO.OUT)
     
-    def food_plate_out():
+        Motor.pwm_a = GPIO.PWM(Motor.ena, 500)
+        Motor.pwm_b = GPIO.PWM(Motor.enb, 500)
+        Motor.pwm_a.start(0)
+        Motor.pwm_b.start(0)
+    
+    def MotorA_Clockwise(speed, duration): #MOTOR A is drawer motor
         Motor.init()
-        GPIO.output(17, False)
-        GPIO.output(22, True)
-        GPIO.output(23, False)
-        GPIO.output(24, False)
-        time.sleep(10) #integer argument is in SECONDS. Amount of time motor runs to slide out food plate.
+        GPIO.output(Motor.in1, False)
+        GPIO.output(Motor.in2, True)
+        Motor.pwm_a.ChangeDutyCycle(speed)
+        time.sleep(duration)
+        Motor.pwm_a.stop()
         GPIO.cleanup()
+        os.system('clear')
         
-    def food_plate_in():
+    def MotorA_CounterClockwise(speed, duration):
         Motor.init()
-        GPIO.output(17, True)
-        GPIO.output(22, False)
-        GPIO.output(23, False)
-        GPIO.output(24, False)
-        time.sleep(10) #integer argument is in SECONDS. Amount of time motor runs to slide out food plate.
-        GPIO.cleanup()
-    
-    def water_pump_forward(duration):
-        Motor.init()
-        GPIO.output(17, False)
-        GPIO.output(22, False)
-        GPIO.output(23, False)
-        GPIO.output(24, True)
+        GPIO.output(Motor.in1, True)
+        GPIO.output(Motor.in2, False)
+        Motor.pwm_a.ChangeDutyCycle(speed)
         time.sleep(duration)
+        Motor.pwm_a.stop()
         GPIO.cleanup()
-    
-    def water_pump_reverse(duration):
+        os.system('clear')
+
+    def MotorB_Clockwise(speed, duration): #MOTOR B is water pump
         Motor.init()
-        GPIO.output(17, False)
-        GPIO.output(22, False)
-        GPIO.output(23, True)
-        GPIO.output(24, False)
+        GPIO.output(Motor.in3, False)
+        GPIO.output(Motor.in4, True)
+        Motor.pwm_b.ChangeDutyCycle(speed)
         time.sleep(duration)
+        Motor.pwm_b.stop()
         GPIO.cleanup()
+        os.system('clear')
+
+    def MotorB_CounterClockwise(speed, duration):
+        Motor.init()
+        GPIO.output(Motor.in3, True)
+        GPIO.output(Motor.in4, False)
+        Motor.pwm_b.ChangeDutyCycle(speed)
+        time.sleep(duration)
+        Motor.pwm_b.stop()
+        GPIO.cleanup()
+        os.system('clear')
         
 class Servo:
     #STILL NEED TO FIGURE OUT DUTY CYCLE FOR SERVO AND STUFF
@@ -261,7 +292,7 @@ def update_home(): #SECTION IS ALSO RESPONSIBLE FOR EVENT TRIGGERS LIKE A FEEDIN
     waterres_level.value = "Water Reservoir Level: " + str(GlobalVariables.waterres_level) + "%"
     waterplt_level.value = "Water Plate Level: " + str(GlobalVariables.waterplt_level) + "%"
     
-    schedule.run_pending()
+    #schedule.run_pending()
     home_dog_size.after(250, update_home) #ULTIMATE RECURSIVE CALL TO UPDATE EVERYTHING. BASED ON DOG SIZE TEXT.
     
 def feed():
@@ -273,8 +304,8 @@ def feed():
     Motor.food_plate_in()
 
 #Scheduler
-schedule.every().day.at(GlobalVariables.first_meal_time).do(feed)
-schedule.every().day.at(GlobalVariables.second_meal_time).do(feed)
+#schedule.every().day.at(GlobalVariables.first_meal_time).do(feed)
+#schedule.every().day.at(GlobalVariables.second_meal_time).do(feed)
 
 title_box = Box(app, align="top", width="fill", border=False)
 title = Text(title_box, text="Home", size=24, font="Arial")
