@@ -13,6 +13,7 @@ class GlobalVariables:
     waterplt_level = 0 #0-100 (percentage) food in water plate
     foodplt_pos_state = 0 #0 = Closed, 1 = Open/Ejected
     autorefill_percent = 50 #25 or 50% level at which water plate is refilled back to 100%
+    feed_time = 0 #2, 5, 10, or 15 MINUTES
     
 class Motor:
     ena = 12
@@ -22,21 +23,6 @@ class Motor:
     enb = 21
     in3 = 19
     in4 = 26
-    
-    GPIO.setmode(GPIO.BCM)
-    
-    GPIO.setup(ena, GPIO.OUT)
-    GPIO.setup(enb, GPIO.OUT)
-    GPIO.setup(in1, GPIO.OUT)
-    GPIO.setup(in2, GPIO.OUT)
-    GPIO.setup(in3, GPIO.OUT)
-    GPIO.setup(in4, GPIO.OUT)
-    
-    pwm_a = GPIO.PWM(ena, 500)
-    pwm_b = GPIO.PWM(enb, 500)
-    
-    pwm_a.start(0)
-    pwm_b.start(0)
     
     def init():
         GPIO.setmode(GPIO.BCM)
@@ -126,6 +112,16 @@ def dev_settings():
             GlobalVariables.autorefill_percent = 50
         if selected_value == "25%":
             GlobalVariables.autorefill_percent = 25
+            
+    def set_feed_time(selected_value):
+        if selected_value == "15 minutes":
+            GlobalVariables.feed_time = 15
+        if selected_value == "10 minutes":
+            GlobalVariables.feed_time = 10
+        if selected_value == "5 minutes":
+            GlobalVariables.feed_time = 5
+        if selected_value == "2 minutes":
+            GlobalVariables.feed_time = 2
     
     def close_window():
         GlobalVariables.dog_name = dog_name_textbox.value
@@ -144,6 +140,11 @@ def dev_settings():
     spacer_14 = Text(waterplt_refill_box, text=" ", size=8)
     auto_refill_text = Text(waterplt_refill_box, align="left", text="Auto-Refill Water Plate at: ", font="Arial", size="14")
     auto_refill_combo = Combo(waterplt_refill_box, align="left", options=["", "50%", "25%"], command=set_auto_refill)
+    
+    feed_time_box = Box(dev_settings_window, align="top", border=True)
+    spacer_15 = Text(feed_time_box, text=" ", size=8)
+    feed_time_text = Text(feed_time_box, align="left", text="Feeding Time: ", font="Arial", size="14")
+    feed_time_text = Combo(feed_time_box, align="left", options=["", "15 minutes", "10 minutes", "5 minutes", "2 minutes"])
     
     menu_box = Box(dev_settings_window, align="bottom", width="fill", border=False)
     close_button = PushButton(menu_box, command=close_window, text="Close", align="right")
@@ -295,7 +296,7 @@ def update_home(): #SECTION IS ALSO RESPONSIBLE FOR EVENT TRIGGERS LIKE A FEEDIN
     #schedule.run_pending()
     home_dog_size.after(250, update_home) #ULTIMATE RECURSIVE CALL TO UPDATE EVERYTHING. BASED ON DOG SIZE TEXT.
     
-def feed():
+def feed(): #NEEDS MASSIVE REVISION
     Servo.open_feed()
     time.sleep(10) #integer argument is time in SECONDS. Amount of time food reservoir is dumping food onto plate. VARIES PER DOG SIZE.
     Servo.close_feed()
