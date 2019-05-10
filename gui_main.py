@@ -1,11 +1,12 @@
 from guizero import App, PushButton, Box, Text, Window, TextBox, Combo
 import sys, os
 import RPi.GPIO as GPIO
+from RpiMotorLib import rpiservolib
 import time #schedule
 
 class GlobalVariables:
     dog_name = " "
-    dog_size = 0 #1 = Toy, 2 = Small, 3 = Medium, 4 = Large
+    dog_size = 0 #1 = Toy,2 = Small, 3 = Medium, 4 = Large
     first_meal_time = " "
     second_meal_time = " "
     foodres_level = 0 #0-100 (percentage) food in food reservoir
@@ -79,24 +80,20 @@ class Motor:
         os.system('clear')
         
 class Servo:
-    #STILL NEED TO FIGURE OUT DUTY CYCLE FOR SERVO AND STUFF
     def init():
-        GPIO.setmode(GPIO.BOARD)
-        GPIO.setup(12, GPIO.OUT)
-        p = GPIO.PWM(12, 50)
-        p.start(7.5) #7.5 = 90 degrees)
+        Servo.myservotest = rpiservolib.SG90servo("servo", 50, 3, 11)
+        
+    def move_0degrees():
+        Servo.init()
+        Servo.myservotest.servo_move(4, 2, .5, True) #Move to 0 degrees
+        
+    def move_90degrees():
+        Servo.init()
+        Servo.myservotest.servo_move(4, 7.5, .5, True) #Move to 90 degrees
     
-    def open_feed():
-        init()
-        p.ChangeDutyCycle(12.5) #turn towards 180 degrees
-        p.stop()
-        GPIO.cleanup()
-    
-    def close_feed():
-        init()
-        p.ChangeDutyCycle(2.5) #turn towards 0 degrees
-        p.stop()
-        GPIO.cleanup()
+    def move_180degrees():
+        Servo.init()
+        Servo.myservotest.servo_move(4, 12, .5, True) #Move to 180 degrees
 
 app = App(title="Dog Feeder", width="800", height="480", bg="white")
 app.set_full_screen() # WILL USE THIS WHEN I HAVE SCREEN
@@ -290,19 +287,20 @@ def update_home(): #SECTION IS ALSO RESPONSIBLE FOR EVENT TRIGGERS LIKE A FEEDIN
     
     #Food and Water Levels Section
     foodres_level.value = "Food Reservoir Level: " + str(GlobalVariables.foodres_level) + "%"
+    feed_time_text.value = "Feeding Time: " + str(GlobalVariables.feed_time) + " minutes"
     waterres_level.value = "Water Reservoir Level: " + str(GlobalVariables.waterres_level) + "%"
     waterplt_level.value = "Water Plate Level: " + str(GlobalVariables.waterplt_level) + "%"
     
     #schedule.run_pending()
     home_dog_size.after(250, update_home) #ULTIMATE RECURSIVE CALL TO UPDATE EVERYTHING. BASED ON DOG SIZE TEXT.
     
-def feed(): #NEEDS MASSIVE REVISION
-    Servo.open_feed()
-    time.sleep(10) #integer argument is time in SECONDS. Amount of time food reservoir is dumping food onto plate. VARIES PER DOG SIZE.
-    Servo.close_feed()
-    Motor.food_plate_out()
-    time.sleep(300) #integer argument is time in SECONDS. Amount of time food plate is out.
-    Motor.food_plate_in()
+#def feed(): #NEEDS MASSIVE REVISION
+#    Servo.open_feed()
+#    time.sleep(10) #integer argument is time in SECONDS. Amount of time food reservoir is dumping food onto plate. VARIES PER DOG SIZE.
+#    Servo.close_feed()
+#    Motor.food_plate_out()
+#    time.sleep(300) #integer argument is time in SECONDS. Amount of time food plate is out.
+#    Motor.food_plate_in()
 
 #Scheduler
 #schedule.every().day.at(GlobalVariables.first_meal_time).do(feed)
@@ -326,12 +324,15 @@ first_meal_time = Text(meal_times_box, font="Arial", size=14)
 second_meal_time = Text(meal_times_box, font="Arial", size=14)
 format_notice = Text(meal_times_box, text="(24-hour format)", font="Arial", size=10)
 
-fw_levels_box = Box(app, align="top", border=False)
-spacer_9 = Text(fw_levels_box, text=" ", size=8)
-foodres_level = Text(fw_levels_box, font="Arial", size=14)
-waterres_level = Text(fw_levels_box, align="left", font="Arial", size=14)
-spacer_10 = Text(fw_levels_box, align="left", text="      ", size=14)
-waterplt_level = Text(fw_levels_box, align="left", font="Arial", size=14)
+fw_levels_box1 = Box(app, align="top", border=False)
+spacer_9 = Text(fw_levels_box1, text=" ", size=8)
+foodres_level = Text(fw_levels_box1, font="Arial", size=14, align="left")
+spacer_16 = Text(fw_levels_box1, align="left", text="      ", size=14)
+feed_time_text = Text(fw_levels_box1, font="Arial", size=14, align="left")
+fw_levels_box2 = Box(app, align="top", border=False)
+waterres_level = Text(fw_levels_box2, align="left", font="Arial", size=14)
+spacer_10 = Text(fw_levels_box2, align="left", text="      ", size=14)
+waterplt_level = Text(fw_levels_box2, align="left", font="Arial", size=14)
 
 home_dog_size.after(250, update_home) #HOME MASSIVE UPDATE
 
