@@ -138,7 +138,7 @@ def dev_settings():
     auto_refill_text = Text(waterplt_refill_box, align="left", text="Auto-Refill Water Plate at: ", font="Arial", size="14")
     auto_refill_combo = Combo(waterplt_refill_box, align="left", options=["", "50%", "25%"], command=set_auto_refill)
     
-    feed_time_box = Box(dev_settings_window, align="top", border=True)
+    feed_time_box = Box(dev_settings_window, align="top", border=False)
     spacer_15 = Text(feed_time_box, text=" ", size=8)
     feed_time_text = Text(feed_time_box, align="left", text="Feeding Time: ", font="Arial", size="14")
     feed_time_combo = Combo(feed_time_box, align="left", options=["", "15 minutes", "10 minutes", "5 minutes", "2 minutes"], command=set_feed_time)
@@ -230,6 +230,12 @@ def quit_function():
     os.system("sudo shutdown -h now")
     quit()
     
+def waterres_level():
+    return
+
+def waterplt_level():
+    return
+    
 def update_home(): #SECTION IS ALSO RESPONSIBLE FOR EVENT TRIGGERS LIKE A FEEDING SESSION
     #Dog Name Section
     dog_name.value = "Dog Name: " + GlobalVariables.dog_name
@@ -286,7 +292,7 @@ def update_home(): #SECTION IS ALSO RESPONSIBLE FOR EVENT TRIGGERS LIKE A FEEDIN
     second_meal_time.value = "Second Meal Time: " + GlobalVariables.second_meal_time
     
     #Food and Water Levels Section
-    foodres_level.value = "Food Reservoir Level: " + str(GlobalVariables.foodres_level) + "%"
+    #foodres_level.value = "Food Reservoir Level: " + str(GlobalVariables.foodres_level) + "%"
     feed_time_text.value = "Feeding Time: " + str(GlobalVariables.feed_time) + " minutes"
     waterres_level.value = "Water Reservoir Level: " + str(GlobalVariables.waterres_level) + "%"
     waterplt_level.value = "Water Plate Level: " + str(GlobalVariables.waterplt_level) + "%"
@@ -326,8 +332,8 @@ format_notice = Text(meal_times_box, text="(24-hour format)", font="Arial", size
 
 fw_levels_box1 = Box(app, align="top", border=False)
 spacer_9 = Text(fw_levels_box1, text=" ", size=8)
-foodres_level = Text(fw_levels_box1, font="Arial", size=14, align="left")
-spacer_16 = Text(fw_levels_box1, align="left", text="      ", size=14)
+#foodres_level = Text(fw_levels_box1, font="Arial", size=14, align="left")
+#spacer_16 = Text(fw_levels_box1, align="left", text="      ", size=14)
 feed_time_text = Text(fw_levels_box1, font="Arial", size=14, align="left")
 fw_levels_box2 = Box(app, align="top", border=False)
 waterres_level = Text(fw_levels_box2, align="left", font="Arial", size=14)
@@ -339,13 +345,11 @@ home_dog_size.after(250, update_home) #HOME MASSIVE UPDATE
 def eject_food_plate():
     if GlobalVariables.foodplt_pos_state == 1:
         return
+    if GlobalVariables.foodplt_pos_state == 0:
+        return
 
 def fill_food_plate():
     return None
-
-def close_food_plate():
-    if GlobalVariables.foodplt_pos_state == 0:
-        return
     
 def fill_water_plate():
     if GlobalVariables.waterplt_level != 100:
@@ -356,11 +360,9 @@ def fill_water_plate():
 #INSERT EJECT TRAY BUTTON ABOVE MENU BAR
 eject_box = Box(app, align="top", border=False)
 spacer_11 = Text(eject_box, text=" ", size=20)
-eject_food_plate_button = PushButton(eject_box, align="left", text="Eject Food Plate", command=eject_food_plate)
+eject_food_plate_button = PushButton(eject_box, align="left", text="Eject/Close Food Plate", command=eject_food_plate)
 spacer_12 = Text(eject_box, align="left", text="   ", size=14)
 fill_food_plate_button = PushButton(eject_box, align="left", text="Fill Food Plate", command=fill_food_plate)
-spacer_13 = Text(eject_box, align="left", text="   ", size=14)
-close_food_plate_button = PushButton(eject_box, align="left", text="Close Food Plate", command=close_food_plate)
 spacer_17 = Text(eject_box, align="left", text="   ", size=14)
 fill_water_plate_button = PushButton(eject_box, align="left", text="Fill Water Plate", command=fill_water_plate)
 
