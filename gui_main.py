@@ -2,7 +2,7 @@ from guizero import App, PushButton, Box, Text, Window, TextBox, Combo
 import sys, os
 import RPi.GPIO as GPIO
 from RpiMotorLib import rpiservolib
-import time #schedule
+import time, schedule
 
 class GlobalVariables:
     dog_name = " "
@@ -141,7 +141,7 @@ def dev_settings():
     feed_time_box = Box(dev_settings_window, align="top", border=True)
     spacer_15 = Text(feed_time_box, text=" ", size=8)
     feed_time_text = Text(feed_time_box, align="left", text="Feeding Time: ", font="Arial", size="14")
-    feed_time_text = Combo(feed_time_box, align="left", options=["", "15 minutes", "10 minutes", "5 minutes", "2 minutes"])
+    feed_time_combo = Combo(feed_time_box, align="left", options=["", "15 minutes", "10 minutes", "5 minutes", "2 minutes"], command=set_feed_time)
     
     menu_box = Box(dev_settings_window, align="bottom", width="fill", border=False)
     close_button = PushButton(menu_box, command=close_window, text="Close", align="right")
@@ -319,7 +319,7 @@ daily_food_amount = Text(dog_size_box, font="Arial", size=14)
 food_warning = Text(dog_size_box, font="Arial", size=14, color="red")
 
 meal_times_box = Box(app, align="top", width="fill", border=False)
-spacer_7 = Text(meal_times_box, text=" ", size=8)
+#spacer_7 = Text(meal_times_box, text=" ", size=8)
 first_meal_time = Text(meal_times_box, font="Arial", size=14)
 second_meal_time = Text(meal_times_box, font="Arial", size=14)
 format_notice = Text(meal_times_box, text="(24-hour format)", font="Arial", size=10)
@@ -346,6 +346,12 @@ def fill_food_plate():
 def close_food_plate():
     if GlobalVariables.foodplt_pos_state == 0:
         return
+    
+def fill_water_plate():
+    if GlobalVariables.waterplt_level != 100:
+        return
+    else:
+        return
 
 #INSERT EJECT TRAY BUTTON ABOVE MENU BAR
 eject_box = Box(app, align="top", border=False)
@@ -355,6 +361,8 @@ spacer_12 = Text(eject_box, align="left", text="   ", size=14)
 fill_food_plate_button = PushButton(eject_box, align="left", text="Fill Food Plate", command=fill_food_plate)
 spacer_13 = Text(eject_box, align="left", text="   ", size=14)
 close_food_plate_button = PushButton(eject_box, align="left", text="Close Food Plate", command=close_food_plate)
+spacer_17 = Text(eject_box, align="left", text="   ", size=14)
+fill_water_plate_button = PushButton(eject_box, align="left", text="Fill Water Plate", command=fill_water_plate)
 
 menu_box = Box(app, align="bottom", width="fill", border=False)
 exit_button = PushButton(menu_box, command=quit_function, text="Exit", width=10, align="right")
