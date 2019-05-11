@@ -33,7 +33,6 @@ class Motor:
         GPIO.setup(Motor.in2, GPIO.OUT)
         GPIO.setup(Motor.in3, GPIO.OUT)
         GPIO.setup(Motor.in4, GPIO.OUT)
-    
         Motor.pwm_a = GPIO.PWM(Motor.ena, 500)
         Motor.pwm_b = GPIO.PWM(Motor.enb, 500)
         Motor.pwm_a.start(0)
@@ -344,18 +343,20 @@ home_dog_size.after(250, update_home) #HOME MASSIVE UPDATE
 
 def eject_food_plate():
     if GlobalVariables.foodplt_pos_state == 1:
-        return
+        Motor.MotorA_Clockwise(100, 1)
+        GlobalVariables.foodplt_pos_state = 0
     if GlobalVariables.foodplt_pos_state == 0:
-        return
+        Motor.MotorA_CounterClockwise(100, 0.35)
+        GlobalVariables.foodplt_pos_state = 1
 
 def fill_food_plate():
-    return None
+    Servo.move_90degrees()
+    time.sleep(30)
+    Servo.move_180degrees()
     
 def fill_water_plate():
-    if GlobalVariables.waterplt_level != 100:
-        return
-    else:
-        return
+    Motor.MotorB_Clockwise(100, 60)
+    Servo.move_180degrees()
 
 #INSERT EJECT TRAY BUTTON ABOVE MENU BAR
 eject_box = Box(app, align="top", border=False)

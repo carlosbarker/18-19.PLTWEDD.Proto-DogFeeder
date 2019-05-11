@@ -27,12 +27,16 @@ print("test 4 test method servo_move")
 input("Press <Enter> to continue Test4b1")
 time.sleep(1)
 myservotest.servo_move(4, 12, .5, True) #Move to 180 degrees
-input("Press <Enter> to continue Test4b2")
-time.sleep(1)
-myservotest.servo_move(4, 2, .5, True) #Move to 0 degrees
 input("Press <Enter> to continue Test4b3")
 time.sleep(1)
 myservotest.servo_move(4, 7.5, .5, True) #Move to 90 degrees
+input("Press <Enter> to continue Test4b1")
+time.sleep(1)
+myservotest.servo_move(4, 12, .5, True) #Move to 180 degrees
+#input("Press <Enter> to continue Test4b2")
+#time.sleep(1)
+#myservotest.servo_move(4, 2, .5, True) #Move to 0 degrees
+
 
 
 #
